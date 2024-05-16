@@ -1,0 +1,56 @@
+import java.util.ArrayList;
+import java.util.List;
+class Peer {
+    private String name;
+    private int windowSize;
+    private List<String> frames;
+    private int base;
+    private int nextSeqNum;
+    public Peer(String name, int windowSize, List<String> frames) {
+        this.name = name;
+        this.windowSize = windowSize;
+        this.frames = frames;
+        this.base = 0;
+        this.nextSeqNum = 0;
+    }
+    public void sendFrames() {
+        while (base < frames.size()) {
+            System.out.println(name + " Sending frames " + base + " to " + Math.min(base + windowSize, frames.size()));
+            nextSeqNum = Math.min(base + windowSize, frames.size());
+            boolean ackReceived = receiveAck();
+            if (ackReceived) {
+                base = nextSeqNum;
+            } else {
+                System.out.println(name + " Timeout, resending frames " + base + " to " + nextSeqNum);
+            }
+        }
+    }
+    public boolean receiveAck() {
+        System.out.println(name + " Waiting for acknowledgment...");
+        // Simulating acknowledgment reception
+        // In a real scenario, you would wait for the acknowledgment from the peer
+        boolean ackReceived = true; // For simplicity, assuming acknowledgment is always received
+        return ackReceived;
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+        int windowSize = 3;
+        List<String> frames = new ArrayList<>();
+        frames.add("Frame1");
+        frames.add("Frame2");
+        frames.add("Frame3");
+        frames.add("Frame4");
+        frames.add("Frame5");
+        frames.add("Frame6");
+        frames.add("Frame7");
+        frames.add("Frame8");
+        Peer peer1 = new Peer("Peer1", windowSize, frames);
+        Peer peer2 = new Peer("Peer2", windowSize, frames);
+        System.out.println("Simulation Start\n");
+        peer1.sendFrames();
+        System.out.println("\n");
+        peer2.sendFrames();
+        System.out.println("\nSimulation End");
+    }
+}
