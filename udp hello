@@ -1,0 +1,32 @@
+udpserver.java   :-
+
+import java.net.*;
+import java.io.*;
+
+public class udpserver {
+    public static void main(String[] args) throws Exception {
+        DatagramSocket ds = new DatagramSocket(2000);
+        byte[] b = new byte[100];
+        DatagramPacket dp = new DatagramPacket(b, b.length);
+        ds.receive(dp);
+        String msg = new String();
+        System.out.println(" Received" + msg);
+    }
+}
+
+
+udpclient.java  :-
+
+import java.net.*;
+import java.io.*;
+
+class udpclient {
+    public static void main(String[] args) throws Exception {
+        DatagramSocket ds = new DatagramSocket();
+        byte[] b = " This is udp client".getBytes();
+        InetAddress ip = InetAddress.getByName("localhost");
+        int port = 2000;
+        DatagramPacket dp = new DatagramPacket(b, b.length, ip, 2000);
+        ds.send(dp);
+    }
+}
