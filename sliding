@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
+#define WINDOW_SIZE 5
+#define TIMEOUT_SEC 5
+typedef struct
+{
+    int seq_num;
+    char data[20];
+} Packet;
+typedef struct
+{
+    int seq_num;
+    int acked;
+} Acknowledgement;
+Packet sent_packets[WINDOW_SIZE];
+Acknowledgement acks[WINDOW_SIZE];
+void send_packet(int seq_num)
+{
+    printf("Sending packet with sequence number %d\n", seq_num);
+    sent_packets[seq_num % WINDOW_SIZE].seq_num = seq_num;
+}
+void receive_ack(int ack_num)
+{
+    printf("Received acknowledgment for sequence number %d\n", ack_num);
+    acks[ack_num % WINDOW_SIZE].acked = 1;
+}
+int main()
+{
+    srand(time(NULL));
+    int next_seq_num = 0;
+    int base = 0;
+    int i;
+    int total_frames;
+    printf("Enter the number of frames to be sent: ");
+    scanf("%d", &total_frames);
+    printf("Starting simulation...\n");
+    printf("=======================\n");
+    printf("Selective Repeat Sliding Window Protocol Simulation\n");
+    printf("=======================\n");
+    while (base < total_frames)
+    {
+        // Send packets if window is not full
+        while (next_seq_num < base + WINDOW_SIZE && next_seq_num < total_frames)
+        {
+            send_packet(next_seq_num);
+            next_seq_num++;
+        }
+        // Simulate acknowledgment reception
+        for (i = base; i < next_seq_num; i++)
+        {
+            if (!acks[i % WINDOW_SIZE].acked && rand() % 2)
+            {
+                receive_ack(i);
+                acks[i % WINDOW_SIZE].acked = 1;
+            }
+        }
+        // Move window base
+        while (acks[base % WINDOW_SIZE].acked && base < next_seq_num)
+        {
+            base++;
+        }
+        // Check if all packets are acknowledged
+        if (base == total_frames)
+        {
+            printf("All packets acknowledged, transmission completed.\n");
+            break;
+        }
+        // Timeout simulation
+        if (base < next_seq_num && acks[base % WINDOW_SIZE].acked != 1)
+        {
+            printf("Timeout occurred. Resending packets.\n");
+            for (i = base; i < next_seq_num; i++)
+            {
+                acks[i % WINDOW_SIZE].acked = 0;
+            }
+        }
+        sleep(1); // Simulating time delay
+    }
+    return 0;
+}
